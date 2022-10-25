@@ -1,0 +1,83 @@
+@startuml SessaoAtendimento
+participant Cliente
+participant PlayStore
+participant APP_Mobile
+participant Servidor
+participant APP_Desktop
+participant Atendente
+
+activate Cliente
+Cliente -> PlayStore ++ : Instalar o App
+PlayStore --> Cliente -- : Retorna o APP
+
+Cliente -> APP_Mobile ++ : Abrir App
+APP_Mobile --> Cliente -- : Apresenta o MENU
+deactivate Cliente
+group Opções do MENU \n[Cardápio]
+    Cliente -> APP_Mobile ++ : Solicitar Cardápio
+    activate Cliente
+    APP_Mobile --> Servidor ++ : Request API
+    Servidor -> APP_Mobile -- : Response API
+    APP_Mobile --> Cliente -- : Apresenta Cardápio
+    deactivate Cliente
+
+else atendimento
+    Cliente -> APP_Mobile ++ : Solicitar atendimento
+    activate Cliente
+    APP_Mobile --> Servidor ++ : Request API
+    Servidor -> Servidor : Iniciar Sessão\n de atendimento
+    Servidor -> Servidor : Cadastrar Ordem\n de atendimento
+    Servidor -> APP_Desktop ++ : Response API
+    APP_Desktop--> Atendente ++ : Ordem de atendimento
+    Atendente -> APP_Desktop -- : Iniciar Atendimento
+    APP_Desktop --> Servidor -- : Request API
+    Servidor -> APP_Mobile -- : Response API
+    APP_Mobile -> Cliente -- : Inicio do atendimento
+    Cliente -> Atendente ++ : Solicitar Pedido
+    Atendente -> APP_Desktop ++ : Cadastrar Pedido 
+    APP_Desktop --> Servidor --++ : Request API
+    Servidor -> APP_Mobile --++ : Response API
+    APP_Mobile -> Cliente -- : Status do Pedido
+    Atendente -> Cliente : Entrega do pedido
+    Atendente -> APP_Desktop --++ : Baixa do atendimento
+    APP_Desktop --> Servidor --++ : Request API
+    Servidor -> APP_Mobile --++ : Response API
+    APP_Mobile -> Cliente -- : Atendimento finalizado
+    deactivate Cliente
+
+else pedido direto
+    Cliente -> APP_Mobile ++ : Solicitar Pedido
+    activate Cliente
+    APP_Mobile --> Servidor --++ : Request API
+    Servidor -> Servidor : Ordem de atendimento
+    Servidor -> Servidor : Cadastrar Pedido
+    Servidor -> APP_Desktop ++ : Response API
+    Servidor -> APP_Mobile --++ : Response API
+    APP_Desktop -> Atendente --++ : Ordem de atendimento\n + Pedido
+    APP_Mobile -> Cliente -- : StatusPedido
+    
+    Atendente -> Cliente: Entrega do Pedido 
+
+    Atendente -> APP_Desktop --++ : Baixa do atendimento
+    APP_Desktop --> Servidor --++ : Request API
+    Servidor -> APP_Mobile --++ : Response API
+    APP_Mobile -> Cliente -- : Atendimento finalizado
+    deactivate Cliente
+end
+
+Atendente -> APP_Desktop ++ : Finalizar Sessão\n de atendimento
+activate Atendente
+APP_Desktop -> Servidor --++ : Request API
+Servidor -> APP_Mobile ++ :Response API
+APP_Mobile -> Cliente ++ : Solicitar Avaliação
+
+Cliente -> APP_Mobile : Avaliar ou Rejeitar
+APP_Mobile -> Servidor : Request API
+Servidor -> Servidor : Armazenar os dados
+APP_Mobile -> Cliente -- : Agradecimento
+deactivate Cliente
+Servidor -> APP_Desktop --++: Response API
+APP_Desktop -> Atendente -- : Resultado da \nSessão de \natendimento
+deactivate Atendente
+
+@enduml
