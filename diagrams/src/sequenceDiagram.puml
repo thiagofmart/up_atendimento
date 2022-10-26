@@ -77,7 +77,7 @@ Servidor -> Servidor : Armazenar os dados
 APP_Mobile -> Cliente -- : Agradecimento
 deactivate Cliente
 Servidor -> APP_Desktop --++: Response API
-APP_Desktop -> Atendente -- : Resultado da \nSessão de \natendimento
+APP_Desktop -> Atendente -- : Resultado da Sessão\n de atendimento
 deactivate Atendente
 
 @enduml
