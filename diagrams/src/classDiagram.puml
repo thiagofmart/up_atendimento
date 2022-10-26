@@ -1,0 +1,62 @@
+@startuml classAtendimento
+class SessaoAtendimento {
+    Id: Integer
+    EmpresaId: Integer
+    Inicio: TimeStamp
+    Termino: TimeStamp
+    Avaliacao: Avaliacao
+    AtendimentoDetalhe(id: Integer) -> Atendimento
+}
+class Atendimento {
+    Id: Integer
+    SessaoAtendimentoId: Integer 
+    AtendenteId: Integer
+    Início: TimeStamp
+    Termino: TimeStamp
+    getTotal() -> Float
+    PedidoDetalhe(id: Integer) -> Pedido
+}
+
+class Pedido {
+    Id: Integer
+    AtendimentoId: Integer
+    Status: String
+    Descricao: String
+    Quantidade: Float
+    Unidade: String
+    Unitario: Float
+    getTotal() -> Float
+}
+
+class Avaliacao {
+    Id: Integer
+    Nota: Integer
+    Observacao: String
+}
+
+class Empresa {
+    Razao_Social: String
+    Fantasia: String
+    CNPJ: String
+    Imagem: Binary
+}
+class Cardapio {
+    Id: Integer
+    Empresa_Id: Integer
+    listarItens() -> Array
+}
+abstract class Item {
+    Id: Integer
+    CardapioId: Integer
+    ImagemPrincipal: Binary
+    ImagemSecundaria: Binary
+    ImagemTerciaria: Binary
+    Descricao: String
+    Unidade: String
+    Unitario: Float
+}
+class Atendente {
+    Id: Integer
+        
+}
+@enduml
