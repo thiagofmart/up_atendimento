@@ -1,0 +1,17 @@
+@startuml Atendimento State
+partition Atendimento {
+    (*) --> Criar 
+    --> [Status: "Aguardando"] Aguardar
+    --> [On Atendente] Iniciar
+    partition "Para cada pedido" {
+        --> ==InicioPedido==
+        --> [Status: "Em Andamento"] Criar Pedido
+        --> ==InicioPedido==
+        "Criar Pedido" --> [Status: "Aguardando"] Aguardar Pedido
+        --> [Status: "Em Andamento"] Entregar Pedido
+        
+    }
+    --> [Status: "Em Andamento"] Finalizar Atendimento
+    --> [Status: "Finalizado"] (*)
+}
+@enduml

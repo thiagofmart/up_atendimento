@@ -1,0 +1,139 @@
+@startuml classAtendimento
+'usuario master'
+entity Empresa {
+    Id: Integer
+    Razao_Social: String
+    Fantasia: String
+    CNPJ: String
+    Imagem: Binary
+    Style: BLOB
+    criarGerente(nome, email, senha)
+    excluirGerente(gerente_id)
+    criarAtendente(nome, email, senha)
+    excluirAtendente(atendente_id)
+    criarIdentificador(descricao, QrCode)
+    excluirIdentificador(identificador_id)
+}
+abstract class Usuario {
+    Id: Integer
+    Nome: String
+    Email: String
+    Senha: SHA256
+    login(email, senha)
+    logout()
+    iniciarSessao(identificador_id: Integer)
+    criarAtendimento(sessao_id: Integer)
+}
+entity Gerente {
+    empresa_id: Integer
+    Usuario.parameters
+    Usuario.methods()
+    iniciarAtendimento(atendimento_id: Integer, atendente_id: Integer)
+    finalizarAtendimento(atendimento_id: Integer)
+}
+entity Atendente {
+    empresa_id: Integer
+    Usuario.parameters 
+    'altera status do atendimento para em andamento'
+    iniciarAtendimento(atendimento_Id: Integer) 
+    finalizarAtendimento(sessao_id:Integer)
+    getCardapio()
+    Usuario.methods()
+}
+entity Cliente {
+    Usuario.parameters
+    'Cria atendimento com status pendente'
+    Usuario.methods()
+}
+protocol Identificador {
+    Id: Integer
+    Descricao: String
+    EmUso: Boolean
+    QrCode: Binary
+}
+'Caso o cliente não faça login, registrar como cliente Anonimo'
+interface SessaoAtendimento {
+    Id: Integer
+    IdentificadorId: Integer
+    Cliente_id: Integer
+    EmpresaId: Integer
+    Inicio: TimeStamp
+    Termino: TimeStamp
+    Avaliacao: Avaliacao
+    Status: String
+    atendimentoDetalhe(id: Integer) -> Atendimento
+    getAvaliacao() -> Avaliacao
+    getTotal() -> Float
+    getCardapio() -> Cardapio
+}
+class Atendimento {
+    Id: Integer
+    SessaoAtendimentoId: Integer 
+    AtendenteId: Integer
+    Status: String
+    Inicio: TimeStamp
+    Termino: TimeStamp
+    getTotal() -> Float
+    criarPedido(item_id: Integer) ->Pedido
+    listarPedidos() -> Array
+    pedidoDetalhe(id: Integer) -> Pedido
+}
+class Pedido {
+    Id: Integer
+    AtendimentoId: Integer
+    Status: String
+    Descricao: String
+    Quantidade: Float
+    Unidade: String
+    Unitario: Float
+    getTotal() -> Float
+}
+class Avaliacao {
+    Id: Integer
+    SessaoAtendimentoId: Integer
+    ClienteId: Integer
+    Nota: Integer
+    Observacao: String
+}
+class Cardapio {
+    Id: Integer
+    EmpresaId: Integer
+    Categoria: String
+    listarItens() -> Array
+}
+abstract class Item {
+    Id: Integer
+    CardapioId: Integer
+    ImagemPrincipal: Binary
+    ImagemSecundaria: Binary
+    ImagemTerciaria: Binary
+    Descricao: String
+    Unidade: String
+    Unitario: Float
+}
+'Atendente live and die with Empresa'
+Empresa "1" *-- "*" Atendente : < Compõe
+Empresa "1" *-- "*" Gerente : < Compõe
+SessaoAtendimento "1" *-- "*" Atendimento : < Compõe
+SessaoAtendimento "1" *-- "1" Avaliacao : < Compõe
+Empresa "1" *-- "*" Cardapio : < Compõe
+Empresa "1" *-- "*" Identificador : < Compõe
+Atendimento "1" *-- "*" Pedido : < Compõe
+Cardapio "1..*" *-- "1..*" Item : < Compõe
+
+
+'Item is part of Pedido'
+Pedido "1" o-- "1" Item : < Agrega
+
+'Dependecies'
+Atendimento "1" ..> "1" Usuario : Depende > 
+SessaoAtendimento "1" ..> "1" Usuario : Depende >
+SessaoAtendimento "0..1" ..> "1" Identificador : Depende >
+Usuario "1" ..> "1" Identificador : Depende >
+Empresa "1" <.. "*" SessaoAtendimento : < Depende 
+'Heranças'
+skinparam groupInheritance 2
+Usuario <|-- Gerente
+Usuario <|-- Atendente : Herdam
+Usuario <|-- Cliente
+@enduml
