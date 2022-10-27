@@ -1,0 +1,30 @@
+@startuml StateSessaoAtendimento
+[*] --> S_EmAndamento : Iniciar Sessao de Atendimento
+note "S = Sessão de Atendimento\nA = Atendimento\nP = Pedido" as N1
+S_EmAndamento : Iniciada a partir da autenticação\ndo Cliente com o Identificador\nou pelo gerente quando o cliente\nnão utiliza o app
+S_EmAndamento --> Atendimento : Criar Atendimento(s)
+state Atendimento {
+    [*] --> A_Aguardando : Criar Ordem de Atendimento
+    A_Aguardando : Momento em que o Cliente\nfica aguardando a disponibilidade\nde um Atendente
+    A_Aguardando --> A_EmAndamento : On Iniciar
+    A_EmAndamento : Quando o Atendente\nacata a Ordem de\nAtendimento
+    A_EmAndamento -> Pedido : Criar Pedido(s)
+    state Pedido {
+        [*] --> P_Aguardando : Criar Ordem\nde Entrega
+        P_Aguardando : Quando o Cliente\naguarda a entrega
+        P_Aguardando --> P_Entregue : On Entrega
+        P_Entregue : Quando o Atendente\n ou Gerente finaliza\na Ordem de Entrega
+        P_Entregue --> [*] 
+    }
+    Pedido : Iniciado Toda vez que o\nCliente realiza um Pedido\nem um Atendendimento
+    Pedido --> Pedido : Solicitar um\nNovo Pedido
+    Pedido --> A_Finalizado : Finalizar Atendimento
+    A_Finalizado : Quando o Atendente\nou Gerente Finaliza a\nOrdem de Atendimento
+    A_Finalizado --> [*]
+}
+Atendimento : Iniciado toda vez que o Cliente solicita um atendimento
+Atendimento --> Atendimento : Solicitar um\nNovo Atendimento
+Atendimento --> S_Finalizada : Finalizar Sessão de Atendimento
+S_Finalizada --> [*]
+S_Finalizada : Quando o Cliente vai \nembora e paga a conta
+@enduml

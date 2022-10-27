@@ -14,45 +14,48 @@ entity Empresa {
     criarIdentificador(descricao, QrCode)
     excluirIdentificador(identificador_id)
 }
-abstract class Usuario {
-    Id: Integer
-    Nome: String
-    Email: String
-    Senha: SHA256
-    login(email, senha)
-    logout()
-    iniciarSessao(identificador_id: Integer)
-    criarAtendimento(sessao_id: Integer)
+package Entidades {
+    abstract class Usuario {
+        Id: Integer
+        Nome: String
+        Email: String
+        Senha: SHA256
+        login(email, senha)
+        logout()
+        iniciarSessao(identificador_id: Integer)
+        criarAtendimento(sessao_id: Integer)
+    }
+    entity Gerente {
+        empresa_id: Integer
+        Usuario.parameters
+        Usuario.methods()
+        iniciarAtendimento(atendimento_id: Integer, atendente_id: Integer)
+        finalizarAtendimento(atendimento_id: Integer)
+    }
+    entity Atendente {
+        empresa_id: Integer
+        Usuario.parameters 
+        'altera status do atendimento para em andamento'
+        iniciarAtendimento(atendimento_Id: Integer) 
+        finalizarAtendimento(sessao_id:Integer)
+        getCardapio()
+        Usuario.methods()
+    }
+    entity Cliente {
+        Usuario.parameters
+        'Cria atendimento com status pendente'
+        Usuario.methods()
+    }
 }
-entity Gerente {
-    empresa_id: Integer
-    Usuario.parameters
-    Usuario.methods()
-    iniciarAtendimento(atendimento_id: Integer, atendente_id: Integer)
-    finalizarAtendimento(atendimento_id: Integer)
-}
-entity Atendente {
-    empresa_id: Integer
-    Usuario.parameters 
-    'altera status do atendimento para em andamento'
-    iniciarAtendimento(atendimento_Id: Integer) 
-    finalizarAtendimento(sessao_id:Integer)
-    getCardapio()
-    Usuario.methods()
-}
-entity Cliente {
-    Usuario.parameters
-    'Cria atendimento com status pendente'
-    Usuario.methods()
-}
+
 protocol Identificador {
     Id: Integer
     Descricao: String
     EmUso: Boolean
     QrCode: Binary
 }
-'Caso o cliente não faça login, registrar como cliente Anonimo'
-interface SessaoAtendimento {
+package Processos {
+    interface SessaoAtendimento {
     Id: Integer
     IdentificadorId: Integer
     Cliente_id: Integer
@@ -95,6 +98,9 @@ class Avaliacao {
     Nota: Integer
     Observacao: String
 }
+}
+'Caso o cliente não faça login, registrar como cliente Anonimo'
+
 class Cardapio {
     Id: Integer
     EmpresaId: Integer

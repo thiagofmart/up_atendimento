@@ -1,4 +1,4 @@
-@startuml SessaoAtendimento
+@startuml SequenceSessaoAtendimento
 participant Cliente
 participant PlayStore
 participant APP_Mobile
